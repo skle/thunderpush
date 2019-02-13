@@ -7,6 +7,8 @@ from sockjs.tornado import SockJSRouter
 
 import sys
 import tornado.ioloop
+import tornado.httpserver
+import tornado.web
 import argparse
 import logging
 
@@ -32,7 +34,16 @@ def run_app():
     logger.info("Starting Thunderpush server at %s:%d",
                 settings.HOST, settings.PORT)
 
-    application.listen(settings.PORT, settings.HOST)
+    http_server = tornado.httpserver.HTTPServer(application)
+    http_server.listen(80)
+
+    https_server = tornado.httpserver.HTTPServer(application, ssl_options={
+        "certfile": "/path/to/cert.pem",
+        "keyfile": "/path/to/privkey.pem",
+    })
+    https_server.listen(443)
+    
+    #application.listen(settings.PORT, settings.HOST)
 
     try:
         tornado.ioloop.IOLoop.instance().start()
